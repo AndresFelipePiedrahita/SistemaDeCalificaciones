@@ -1,9 +1,9 @@
 #ifndef ESTUDIANTE_H
 #define ESTUDIANTE_H
-#include "asignatura.h"
 #include <stdio.h>
-#include "utilidades.h"
 #include <stdlib.h>
+#include "utilidades.h"
+#include "asignatura.h"
 
 typedef struct{
     int id;
@@ -88,68 +88,115 @@ void mostrarEstudiante(Estudiante estudiante){
     printf("Contrasena: %s\n", estudiante.contrasena);
 }
 
-void eliminarEstudiante();
+void guardararchivoEstudiantes(Estudiante *estudiantes, int tamanoVectorEstudiantes){
+    FILE *archivoEstudiantesEstudiantes = fopen("data/estudiantes.bat", "wb"); //Modifica todo el archivoEstudiantes en binario, cargando y actualizando todo el vector
+    if(archivoEstudiantesEstudiantes == NULL){
+        perror("Error al abrir el archivoEstudiantes");
+        exit(EXIT_FAILURE);
+    }
+    fwrite(estudiantes, sizeof(Estudiante), tamanoVectorEstudiantes, archivoEstudiantesEstudiantes);
+    fclose(archivoEstudiantesEstudiantes);
+}
+
+void leerArchvivosEstudiantes(Estudiante *estudiantes, int *tamanoVectorEstudiantes) {
+    FILE *archivoEstudiantes = fopen("data/estudiantes.bat", "rb"); // Lee el archivo en binario
+    if (archivoEstudiantes == NULL) {
+        perror("Error al abrir el archivo de estudiantes");
+        exit(EXIT_FAILURE);
+    }
+
+    *tamanoVectorEstudiantes = 0; // Inicializa el contador
+    while (*tamanoVectorEstudiantes < MAXESTUDIANTES && fread(&estudiantes[*tamanoVectorEstudiantes], sizeof(Estudiante), 1, archivoEstudiantes)) {
+        (*tamanoVectorEstudiantes)++;
+    }
+}
+
+void eliminarEstudiante(Estudiante *estudiantes, int *tamanoVectorEstudiantes, int idEstudiante) {
+    int poscionEstudianteEliminar = -1;
+
+    for (int contador = 0; contador < *tamanoVectorEstudiantes; contador++) {
+        if (estudiantes[contador].id == idEstudiante) {
+            poscionEstudianteEliminar = contador; 
+            break;
+        }
+    }
+
+    if (poscionEstudianteEliminar != -1) {
+        for (int contador = poscionEstudianteEliminar; contador < *tamanoVectorEstudiantes - 1; contador++) {
+            estudiantes[contador] = estudiantes[contador + 1];
+        }
+        (*tamanoVectorEstudiantes)--;
+        printf("Estudiante con ID %d eliminado exitosamente.\n", idEstudiante);
+    } else {
+        printf("Estudiante con ID %d no encontrado.\n", idEstudiante);
+    }
+}
 
 void mostrarCalificacion();
 
 void generarBoletin();
 
-void menuEstudiante(Estudiante *estudiantes){
-    int tamanoVector = sizeof(estudiantes)/sizeof(estudiantes[0]);
-    int posicionVector = 0;
+
+void menuCrudEstudiante(){
+    Estudiante estudiantes[MAXESTUDIANTES];
+    int tamanoVectorEstudiantes = 0;
     int opcion = 1;
     int validarId;
-    
+
+    leerArchvivosEstudiantes(estudiantes, &tamanoVectorEstudiantes);
+
     while(opcion != 0){
-        printf("\nMenu Estudiante\n");
-        printf("1. Crear estudiante\n");
-        printf("2. Actualizar estudiante\n");
-        printf("3. Mostrar estudiante\n");
-        printf("4. Eliminar estudiante\n");
-        printf("5. Mostrar calificacion\n");
-        printf("6. Generar boletin\n");
+        printf("\nMenu CRUD Estudiante\n");
+        printf("1. Crear Estudiante\n");
+        printf("2. Mostrar Estudiantes\n");
+        printf("3. Modificar Estudiante\n");
+        printf("4. Eliminar Estudiante\n");
         printf("0. Salir\n");
         printf("Seleccione una opcion: ");
         scanf("%d", &opcion);
         switch (opcion){
             case 1:
-                if(sizeof(estudiantes)/sizeof(estudiantes[0]) == tamanoVector){
-                    estudiantes = malloc((tamanoVector+1) * sizeof(estudiantes));
+                if (tamanoVectorEstudiantes < MAXESTUDIANTES) {
+                    Estudiante estudiante = crearEstudiante();
+                    estudiantes[tamanoVectorEstudiantes] = estudiante;
+                    tamanoVectorEstudiantes++;
+                    guardararchivoEstudiantes(estudiantes, tamanoVectorEstudiantes);
+                } else {
+                    printf("El máximo número de estudiantes ha sido alcanzado.\n");
                 }
-                Estudiante estudiante;
-                estudiante = crearEstudiante();
-                estudiantes[posicionVector] = estudiante;
-                posicionVector++;
-                tamanoVector++;
                 break;
             case 2:
+                for (int contador = 0; contador < tamanoVectorEstudiantes; contador++){
+                    printf("\nEstudiante %d:\n", contador);
+                    mostrarEstudiante(estudiantes[contador]);
+                }
+                break;
+            case 3:
                 printf("\nIngrese el ID del estudiante a modificar: ");
                 scanf("%d", &validarId);
-                for(int contador = 0; contador < tamanoVector; contador++){
+                for(int contador = 0; contador < tamanoVectorEstudiantes; contador++){
                     if(validarId != estudiantes[contador].id){
                         printf("\nEl ID ingresado no corresponde a ningun estudiante!\n");
-                        return;
+                        break;
                     }else if(validarId == estudiantes[contador].id){
                         printf("\nEstudiante encontrado!\n");
-                        printf("%d", contador);
                         estudiantes[contador] = actualizarEstudiante(estudiantes, contador);
                     }
                 }
                 break;
-            case 3:
-            for (int contador = 0; contador < posicionVector; contador++){
-                printf("\nEstudiante %d:\n", contador);
-                mostrarEstudiante(estudiantes[contador]);
-            }
-                break;
             case 4:
-                //eliminarEstudiante();
-                break;
-            case 5:
-                //mostrarCalificacion();
-                break;
-            case 6:
-                //generarBoletin();
+                printf("\nIngrese el ID del estudiante a eliminar: ");
+                scanf("%d", &validarId);
+                for(int contador = 0; contador < tamanoVectorEstudiantes; contador++){
+                    if(validarId != estudiantes[contador].id){
+                        printf("\nEl ID ingresado no corresponde a ningun estudiante!\n");
+                        break;
+                    }else if(validarId == estudiantes[contador].id){
+                        printf("\nEstudiante encontrado!\n");
+                        eliminarEstudiante(estudiantes, &tamanoVectorEstudiantes, validarId);
+                        break;
+                    }
+                }
                 break;
             case 0:
                 printf("\nHas salido del menu de estudiante\n");

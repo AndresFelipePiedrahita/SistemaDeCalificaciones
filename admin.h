@@ -12,7 +12,6 @@ typedef struct {
     Asignatura asignaturas[10];
 } Admin;
 
-void menuCrud();
 void menuPrincipalAdmin();
 void menuGestionAdmin();
 void crearAdmin();
@@ -29,10 +28,11 @@ void cerrarSesion();
 
 void menuCrud(){
     printf("1. Crear\n");
-    printf("2. Leer\n");
+    printf("2. Mostrar\n");
     printf("3. Actualizar\n");
     printf("4. Eliminar\n");
 }
+
 void menuPrincipalAdmin() {
     int opcion;
     do {
