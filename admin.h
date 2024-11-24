@@ -12,6 +12,7 @@ typedef struct {
     Asignatura asignaturas[10];
 } Admin;
 
+
 void menuPrincipalAdmin();
 void menuGestionAdmin();
 void crearAdmin();
