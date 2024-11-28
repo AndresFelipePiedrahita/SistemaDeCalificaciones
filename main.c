@@ -7,7 +7,10 @@
 #include "estudiante.h"
 
 Menu option;
-int totalAdmins = 0; // Variables globales
+
+//INFORME GENERAL ESTUDIANTES VEN ASIGNATURAS Y PROMEDIO FINAL
+//INFORME ASIGNATURAS NOTAS DEL ESTUDIANTE / EN DOCENTES
+//BOLETÍN
 
 // Declaración de funciones
 Menu menuPrincipal();
